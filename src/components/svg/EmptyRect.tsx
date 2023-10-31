@@ -1,4 +1,4 @@
-import { backgroundColormap } from "../utils/colorMaps";
+import { backgroundColormap } from "../../utils/colorMaps";
 
 type EmptyRectType = {
   x: string;

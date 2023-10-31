@@ -1,6 +1,6 @@
-import { Sequence } from "../types.ts";
-import { PianoRoll } from "./PianoRoll";
-import { PianoRollCard } from "./PianoRollCard";
+import { Sequence } from "../../types.ts/index.ts";
+import { PianoRoll } from "./PianoRoll.tsx";
+import { PianoRollCard } from "./PianoRollCard.tsx";
 
 export const PianoRollContainer = (props: { data: Sequence[] }) => {
   const rollsArray = new Array(20).fill(0).map((el, i) => el + i + 1);

@@ -1,9 +1,9 @@
 import { useState } from "react";
 import "./App.css";
 import { Sequence } from "./types.ts";
-import { Nav } from "./components/Nav.tsx";
-import { LoadButton } from "./components/LoadButton.tsx";
-import { PianoRollContainer } from "./components/PianoRollContainer.tsx";
+import { Nav } from "./components/nav/Nav.tsx";
+import { LoadButton } from "./components/buttons/LoadButton.tsx";
+import { PianoRollContainer } from "./components/rolls/PianoRollContainer.tsx";
 
 function App() {
   const [data, setData] = useState<Sequence[] | null>(null);

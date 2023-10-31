@@ -1,5 +1,5 @@
-import { EmptyRect } from "./EmptyRect";
-import { Line } from "./Line";
+import { EmptyRect } from "../svg/EmptyRect";
+import { Line } from "../svg/Line";
 
 type EmptyRollType = {
   pitch_min: number;

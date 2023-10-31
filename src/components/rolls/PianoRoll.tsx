@@ -1,8 +1,8 @@
-import { Sequence } from "../types.ts";
-import { noteColormap } from "../utils/colorMaps.ts";
-import { getRollParams } from "../utils/getRollParams.ts";
+import { Sequence } from "../../types.ts/index.ts";
+import { noteColormap } from "../../utils/colorMaps.ts";
+import { getRollParams } from "../../utils/getRollParams.ts";
 import { EmptyRoll } from "./EmptyRoll.tsx";
-import { Rect } from "./Rect.tsx";
+import { Rect } from "../svg/Rect.tsx";
 
 type PianoRollProps = {
   sequence: Sequence[];
