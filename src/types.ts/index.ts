@@ -11,3 +11,8 @@ export type Sequence = {
   start: number;
   velocity: number;
 };
+
+export type AppContextType = {
+  activeRoll: number | null;
+  setActiveRoll?: React.Dispatch<React.SetStateAction<null | number>>;
+};

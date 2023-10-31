@@ -1,4 +1,5 @@
-import { ReactNode } from "react";
+import { ReactNode, useContext } from "react";
+import { AppContext } from "../../context";
 
 type PianoRollCardProps = {
   rollId: number;
@@ -6,8 +7,14 @@ type PianoRollCardProps = {
 };
 
 export const PianoRollCard = ({ rollId, children }: PianoRollCardProps) => {
+  const { setActiveRoll } = useContext(AppContext);
+
+  const handleClick = () => {
+    setActiveRoll && setActiveRoll(rollId);
+  };
+
   return (
-    <div className="piano-roll-card">
+    <div className="piano-roll-card" onClick={handleClick}>
       <div className="description">{`This is a piano roll number ${rollId}`}</div>
       {children}
     </div>
