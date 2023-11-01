@@ -27,11 +27,11 @@ export const PianoRoll = ({ sequence, rollId }: PianoRollProps) => {
   const getMousePosition = (
     event: React.MouseEvent<SVGSVGElement, MouseEvent>
   ) => {
-    const rollWidth = ref.current!.getBoundingClientRect().width;
-    const edgeWindow = ref.current!.getBoundingClientRect().left;
-
-    setIsSelect(true);
     if (activeRoll === rollId) {
+      const rollWidth = ref.current!.getBoundingClientRect().width;
+      const edgeWindow = ref.current!.getBoundingClientRect().left;
+
+      setIsSelect(true);
       setXPosition(event.clientX);
       setWidth(rollWidth);
       setEdge(edgeWindow);
@@ -46,12 +46,18 @@ export const PianoRoll = ({ sequence, rollId }: PianoRollProps) => {
     const partDuration = sequence[0].end - sequence[0].start;
     const partWidth = timeToX(sequence[0].end - sequence[0].start);
     const part = (partWidth * 100) / width;
-    const duration = partDuration / part;
-    return duration;
+    return partDuration / part;
   };
 
   const linePositionX = (xPosition - edge) / width;
-  const timeStamp = ((getDuration() / width) * (xPosition - edge)).toFixed(3);
+  const textPositionX =
+    xPosition / window.innerWidth < 0.47
+      ? linePositionX
+      : (xPosition - edge * 2) / width;
+  const timeStamp = (
+    (getDuration() / width) *
+    (xPosition - edge + 0.6)
+  ).toFixed(3);
 
   return (
     <svg
@@ -87,28 +93,26 @@ export const PianoRoll = ({ sequence, rollId }: PianoRollProps) => {
         );
       })}
       {isSelect && (
-        <line
-          className="time-line"
-          xmlns="http://www.w3.org/2000/svg"
-          x1={`${linePositionX} `}
-          y1="0"
-          x2={`${(xPosition - edge) / width} `}
-          y2="1"
-          stroke="red"
-          strokeWidth="0.002"
-        ></line>
-      )}
-      {isSelect && (
         <>
+          <line
+            className="time-line"
+            xmlns="http://www.w3.org/2000/svg"
+            x1={`${linePositionX} `}
+            y1="0"
+            x2={`${linePositionX} `}
+            y2="1"
+            stroke="red"
+            strokeWidth="0.002"
+          ></line>
           <rect
-            x={`${(xPosition - edge) / width} `}
+            x={`${textPositionX} `}
             y="0.45"
             width="0.2"
             height="0.1"
             fill="#4c4c4c"
           ></rect>
           <text
-            x={`${(xPosition - edge) / width} `}
+            x={`${textPositionX} `}
             y="0.52"
             fontFamily="sans-serif"
             fontSize="0.06"

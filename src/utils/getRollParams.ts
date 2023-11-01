@@ -26,6 +26,5 @@ export const getRollParams = (sequence: Sequence[]) => {
   pitch_span = pitch_max - pitch_min;
   const note_height = 1 / pitch_span;
 
-  //console.log(start, end);
   return { start, end, note_height, pitch_max, pitch_min, pitch_span };
 };
