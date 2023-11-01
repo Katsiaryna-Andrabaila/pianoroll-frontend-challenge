@@ -65,6 +65,7 @@ body {
 .active-roll .piano-roll-card {
   background-color: #f7f7f7;
   border: 1px solid #56aac9;
+  cursor: unset;
 }
 
 h1 {
@@ -84,8 +85,27 @@ h1 {
   cursor: pointer;
 }
 
+.piano-roll-card:hover {
+  background-color: #f7f7f7;
+  border: 1px solid #56aac9;
+}
+
 .active-roll .piano-roll-card svg {
   height: 300px;
+}
+
+.piano-roll-svg.active {
+  position: relative;
+}
+
+.piano-roll-svg.active .time-line {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 20;
+  height: 300px;
+  width: 2px;
+  background-color: red;
 }
 
 .error-message {

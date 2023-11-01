@@ -25,7 +25,7 @@ export const PianoRollContainer = (props: { data: Sequence[] }) => {
       <section className={activeRoll ? "active-roll" : ""}>
         {activeRoll && (
           <PianoRollCard rollId={activeRoll}>
-            <PianoRoll sequence={getPartData(activeRoll)} />
+            <PianoRoll sequence={getPartData(activeRoll)} rollId={activeRoll} />
           </PianoRollCard>
         )}
       </section>
@@ -35,7 +35,7 @@ export const PianoRollContainer = (props: { data: Sequence[] }) => {
 
           return (
             <PianoRollCard rollId={el} key={el}>
-              <PianoRoll sequence={partData} />
+              <PianoRoll sequence={partData} rollId={el} />
             </PianoRollCard>
           );
         })}
