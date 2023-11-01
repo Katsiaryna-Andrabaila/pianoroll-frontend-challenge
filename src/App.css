@@ -98,16 +98,6 @@ h1 {
   position: relative;
 }
 
-.piano-roll-svg.active .time-line {
-  position: absolute;
-  left: 0;
-  top: 0;
-  z-index: 20;
-  height: 300px;
-  width: 2px;
-  background-color: red;
-}
-
 .error-message {
   margin-top: 2rem;
   font-size: 2rem;

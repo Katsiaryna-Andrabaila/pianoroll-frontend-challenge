@@ -15,7 +15,6 @@ function App() {
     setActiveRoll(null);
     if (!data) await loadPianoRollData(setData);
     if (!data) return;
-    loadPianoRollData(setData);
   };
 
   return (

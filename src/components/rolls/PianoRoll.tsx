@@ -3,7 +3,7 @@ import { noteColormap } from "../../utils/colorMaps.ts";
 import { getRollParams } from "../../utils/getRollParams.ts";
 import { EmptyRoll } from "./EmptyRoll.tsx";
 import { Rect } from "../svg/Rect.tsx";
-import { createRef, useContext, useEffect, useState } from "react";
+import { createRef, useContext, useState } from "react";
 import { AppContext } from "../../context/index.ts";
 
 type PianoRollProps = {
@@ -13,36 +13,45 @@ type PianoRollProps = {
 
 export const PianoRoll = ({ sequence, rollId }: PianoRollProps) => {
   const [xPosition, setXPosition] = useState(0);
-  const ref = createRef<SVGSVGElement>();
   const [width, setWidth] = useState(1);
   const [edge, setEdge] = useState(1);
+  const [isSelect, setIsSelect] = useState(false);
+  const ref = createRef<SVGSVGElement>();
   const { activeRoll } = useContext(AppContext);
-  //const duration = end - start;
-
-  useEffect(() => {
-    const rollWidth = ref.current!.getBoundingClientRect().width;
-    const edgeWindow = ref.current!.getBoundingClientRect().left;
-
-    if (activeRoll === rollId) {
-      setWidth(rollWidth);
-      setEdge(edgeWindow);
-    }
-  }, []);
 
   const { start, end, note_height, pitch_max, pitch_min, pitch_span } =
     getRollParams(sequence);
 
-  const timeToX = (time: number) => {
-    if (end) {
-      return time / end;
-    }
-  };
+  const timeToX = (time: number) => time / end;
 
   const getMousePosition = (
     event: React.MouseEvent<SVGSVGElement, MouseEvent>
   ) => {
-    activeRoll === rollId && setXPosition(event.clientX);
+    const rollWidth = ref.current!.getBoundingClientRect().width;
+    const edgeWindow = ref.current!.getBoundingClientRect().left;
+
+    setIsSelect(true);
+    if (activeRoll === rollId) {
+      setXPosition(event.clientX);
+      setWidth(rollWidth);
+      setEdge(edgeWindow);
+    }
   };
+
+  const removeTimeLine = () => {
+    setIsSelect(false);
+  };
+
+  const getDuration = () => {
+    const partDuration = sequence[0].end - sequence[0].start;
+    const partWidth = timeToX(sequence[0].end - sequence[0].start);
+    const part = (partWidth * 100) / width;
+    const duration = partDuration / part;
+    return duration;
+  };
+
+  const linePositionX = (xPosition - edge) / width;
+  const timeStamp = ((getDuration() / width) * (xPosition - edge)).toFixed(3);
 
   return (
     <svg
@@ -55,9 +64,10 @@ export const PianoRoll = ({ sequence, rollId }: PianoRollProps) => {
       viewBox="0 0 1 1"
       preserveAspectRatio="none"
       onMouseMove={getMousePosition}
+      onMouseLeave={removeTimeLine}
       ref={ref}
     >
-      <EmptyRoll pitch_max={pitch_max} pitch_min={pitch_min} />
+      <EmptyRoll pitch_min={pitch_min} pitch_max={pitch_max} />
       {sequence.map((note, i) => {
         const x = timeToX(note.start - start);
         const w = timeToX(note.end - note.start);
@@ -76,17 +86,37 @@ export const PianoRoll = ({ sequence, rollId }: PianoRollProps) => {
           />
         );
       })}
-      {activeRoll === rollId && (
+      {isSelect && (
         <line
           className="time-line"
           xmlns="http://www.w3.org/2000/svg"
-          x1={`${(xPosition - edge) / width} `}
+          x1={`${linePositionX} `}
           y1="0"
           x2={`${(xPosition - edge) / width} `}
           y2="1"
           stroke="red"
           strokeWidth="0.002"
         ></line>
+      )}
+      {isSelect && (
+        <>
+          <rect
+            x={`${(xPosition - edge) / width} `}
+            y="0.45"
+            width="0.2"
+            height="0.1"
+            fill="#4c4c4c"
+          ></rect>
+          <text
+            x={`${(xPosition - edge) / width} `}
+            y="0.52"
+            fontFamily="sans-serif"
+            fontSize="0.06"
+            fill="white"
+          >
+            {`${timeStamp}`}
+          </text>
+        </>
       )}
     </svg>
   );

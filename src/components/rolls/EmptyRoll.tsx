@@ -8,7 +8,9 @@ type EmptyRollType = {
 
 export const EmptyRoll = ({ pitch_min, pitch_max }: EmptyRollType) => {
   const pitch_span = pitch_max - pitch_min;
-  const arr = new Array(pitch_max + 1).fill(pitch_min).map((el, i) => el + i);
+  const arr = new Array(pitch_max + 1 - pitch_min)
+    .fill(pitch_min)
+    .map((el, i) => el + i);
 
   return (
     <>
