@@ -5,6 +5,10 @@ import { EmptyRoll } from "./EmptyRoll.tsx";
 import { Rect } from "../svg/Rect.tsx";
 import { createRef, useContext, useState } from "react";
 import { AppContext } from "../../context/index.ts";
+import { SelectedRect } from "../svg/SelectedRect.tsx";
+import { TimeStamp } from "../svg/TimeStamp.tsx";
+import { timeToX } from "../../utils/timeToX.ts";
+import { getDuration } from "../../utils/getDuration.ts";
 
 type PianoRollProps = {
   sequence: Sequence[];
@@ -16,13 +20,13 @@ export const PianoRoll = ({ sequence, rollId }: PianoRollProps) => {
   const [width, setWidth] = useState(1);
   const [edge, setEdge] = useState(1);
   const [isSelect, setIsSelect] = useState(false);
+  const [partStart, setPartStart] = useState<number | null>(null);
+  const [partEnd, setPartEnd] = useState<number | null>(null);
   const ref = createRef<SVGSVGElement>();
   const { activeRoll } = useContext(AppContext);
 
   const { start, end, note_height, pitch_max, pitch_min, pitch_span } =
     getRollParams(sequence);
-
-  const timeToX = (time: number) => time / end;
 
   const getMousePosition = (
     event: React.MouseEvent<SVGSVGElement, MouseEvent>
@@ -38,26 +42,29 @@ export const PianoRoll = ({ sequence, rollId }: PianoRollProps) => {
     }
   };
 
-  const removeTimeLine = () => {
-    setIsSelect(false);
-  };
-
-  const getDuration = () => {
-    const partDuration = sequence[0].end - sequence[0].start;
-    const partWidth = timeToX(sequence[0].end - sequence[0].start);
-    const part = (partWidth * 100) / width;
-    return partDuration / part;
-  };
-
   const linePositionX = (xPosition - edge) / width;
   const textPositionX =
     xPosition / window.innerWidth < 0.47
       ? linePositionX
       : (xPosition - edge * 2) / width;
   const timeStamp = (
-    (getDuration() / width) *
+    (getDuration(sequence[0], end, width) / width) *
     (xPosition - edge + 0.6)
   ).toFixed(3);
+
+  const handleMouseDown = (
+    event: React.MouseEvent<SVGSVGElement, MouseEvent>
+  ) => {
+    const currentPosition = event.clientX;
+    setPartStart(currentPosition);
+  };
+
+  const handleMouseUp = (
+    event: React.MouseEvent<SVGSVGElement, MouseEvent>
+  ) => {
+    const currentPosition = event.clientX;
+    setPartEnd(currentPosition);
+  };
 
   return (
     <svg
@@ -70,13 +77,15 @@ export const PianoRoll = ({ sequence, rollId }: PianoRollProps) => {
       viewBox="0 0 1 1"
       preserveAspectRatio="none"
       onMouseMove={getMousePosition}
-      onMouseLeave={removeTimeLine}
+      onMouseLeave={() => setIsSelect(false)}
+      onMouseDown={handleMouseDown}
+      onMouseUp={handleMouseUp}
       ref={ref}
     >
       <EmptyRoll pitch_min={pitch_min} pitch_max={pitch_max} />
       {sequence.map((note, i) => {
-        const x = timeToX(note.start - start);
-        const w = timeToX(note.end - note.start);
+        const x = timeToX(note.start - start, end);
+        const w = timeToX(note.end - note.start, end);
         const y = 1 - (note.pitch - pitch_min) / pitch_span;
         const color = noteColormap[note.velocity];
 
@@ -93,34 +102,22 @@ export const PianoRoll = ({ sequence, rollId }: PianoRollProps) => {
         );
       })}
       {isSelect && (
-        <>
-          <line
-            className="time-line"
-            xmlns="http://www.w3.org/2000/svg"
-            x1={`${linePositionX} `}
-            y1="0"
-            x2={`${linePositionX} `}
-            y2="1"
-            stroke="red"
-            strokeWidth="0.002"
-          ></line>
-          <rect
-            x={`${textPositionX} `}
-            y="0.45"
-            width="0.2"
-            height="0.1"
-            fill="#4c4c4c"
-          ></rect>
-          <text
-            x={`${textPositionX} `}
-            y="0.52"
-            fontFamily="sans-serif"
-            fontSize="0.06"
-            fill="white"
-          >
-            {`${timeStamp}`}
-          </text>
-        </>
+        <TimeStamp
+          linePositionX={linePositionX}
+          textPositionX={textPositionX}
+          timeStamp={timeStamp}
+        />
+      )}
+
+      {partStart && (
+        <SelectedRect
+          width={
+            partEnd
+              ? (partEnd - partStart) / width
+              : (xPosition - partStart) / width
+          }
+          partStart={(partStart - edge) / width}
+        />
       )}
     </svg>
   );
