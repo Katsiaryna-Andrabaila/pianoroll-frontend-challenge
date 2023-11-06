@@ -9,6 +9,8 @@ import { SelectedRect } from "../svg/SelectedRect.tsx";
 import { TimeStamp } from "../svg/TimeStamp.tsx";
 import { timeToX } from "../../utils/timeToX.ts";
 import { getDuration } from "../../utils/getDuration.ts";
+import { InfoChosen } from "../infoChosen/InfoChosen.tsx";
+import { getNotes } from "../../utils/getNotes.ts";
 
 type PianoRollProps = {
   sequence: Sequence[];
@@ -47,10 +49,8 @@ export const PianoRoll = ({ sequence, rollId }: PianoRollProps) => {
     xPosition / window.innerWidth < 0.47
       ? linePositionX
       : (xPosition - edge * 2) / width;
-  const timeStamp = (
-    (getDuration(sequence[0], end, width) / width) *
-    (xPosition - edge + 0.6)
-  ).toFixed(3);
+  const duration = getDuration(sequence[0], end, width);
+  const timeStamp = ((duration / width) * (xPosition - edge + 0.6)).toFixed(3);
 
   const handleMouseDown = (
     event: React.MouseEvent<SVGSVGElement, MouseEvent>
@@ -67,58 +67,78 @@ export const PianoRoll = ({ sequence, rollId }: PianoRollProps) => {
   };
 
   return (
-    <svg
-      className={
-        activeRoll === rollId ? "piano-roll-svg active" : "piano-roll-svg"
-      }
-      xmlns="http://www.w3.org/2000/svg"
-      width="80%"
-      height="150"
-      viewBox="0 0 1 1"
-      preserveAspectRatio="none"
-      onMouseMove={getMousePosition}
-      onMouseLeave={() => setIsSelect(false)}
-      onMouseDown={handleMouseDown}
-      onMouseUp={handleMouseUp}
-      ref={ref}
-    >
-      <EmptyRoll pitch_min={pitch_min} pitch_max={pitch_max} />
-      {sequence.map((note, i) => {
-        const x = timeToX(note.start - start, end);
-        const w = timeToX(note.end - note.start, end);
-        const y = 1 - (note.pitch - pitch_min) / pitch_span;
-        const color = noteColormap[note.velocity];
+    <>
+      <svg
+        className={
+          activeRoll === rollId ? "piano-roll-svg active" : "piano-roll-svg"
+        }
+        xmlns="http://www.w3.org/2000/svg"
+        width="80%"
+        height="150"
+        viewBox="0 0 1 1"
+        preserveAspectRatio="none"
+        onMouseMove={getMousePosition}
+        onMouseLeave={() => setIsSelect(false)}
+        onMouseDown={handleMouseDown}
+        onMouseUp={handleMouseUp}
+        ref={ref}
+      >
+        <EmptyRoll pitch_min={pitch_min} pitch_max={pitch_max} />
+        {sequence.map((note, i) => {
+          const x = timeToX(note.start - start, end);
+          const w = timeToX(note.end - note.start, end);
+          const y = 1 - (note.pitch - pitch_min) / pitch_span;
+          const color = noteColormap[note.velocity];
 
-        return (
-          <Rect
-            className="note-rectangle"
-            x={`${x}`}
-            width={`${w}`}
-            y={`${y}`}
-            fill={`${color}`}
-            height={`${note_height}`}
-            key={i}
+          return (
+            <Rect
+              className="note-rectangle"
+              x={`${x}`}
+              width={`${w}`}
+              y={`${y}`}
+              fill={`${color}`}
+              height={`${note_height}`}
+              key={i}
+            />
+          );
+        })}
+        {isSelect && (
+          <TimeStamp
+            linePositionX={linePositionX}
+            textPositionX={textPositionX}
+            timeStamp={timeStamp}
           />
-        );
-      })}
-      {isSelect && (
-        <TimeStamp
-          linePositionX={linePositionX}
-          textPositionX={textPositionX}
-          timeStamp={timeStamp}
-        />
-      )}
+        )}
 
-      {partStart && (
-        <SelectedRect
-          width={
-            partEnd
-              ? (partEnd - partStart) / width
-              : (xPosition - partStart) / width
-          }
-          partStart={(partStart - edge) / width}
+        {partStart && activeRoll === rollId && (
+          <SelectedRect
+            width={
+              partEnd
+                ? (partEnd - partStart) / width
+                : (xPosition - partStart) / width
+            }
+            partStart={(partStart - edge) / width}
+          />
+        )}
+      </svg>
+      {activeRoll === rollId && (
+        <InfoChosen
+          partStart={partStart}
+          partEnd={partEnd}
+          duration={duration}
+          width={width}
+          edge={edge}
+          notes={getNotes({
+            sequence,
+            start,
+            end,
+            partStart,
+            partEnd,
+            edge,
+            width,
+          })}
         />
       )}
-    </svg>
+    </>
   );
 };
